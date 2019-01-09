@@ -4,6 +4,21 @@ Robotic Depth Perception System for Human Avoidance
 
 ## Get Started
 
+### Install
+
+```bash
+pip install -r requirements.txt
+```
+
+### Usage
+
+```bash
+# Python
+python find_clearance.py input/human_corridor_0.txt
+python find_clearance.py input/human_corridor_1.txt
+python find_clearance.py input/human_corridor_2.txt
+```
+
 ## Task Description
 
 You’ve been tasked to implement a prototype of a component of a robotic depth
@@ -80,3 +95,33 @@ you with this description. We are going to test your submission with images that
 to the ones we sent. However, please attach your notes regarding possible next steps for your
 perception system. In particular, please note how would you generalize your algorithm for
 different conditions and edge cases, assuming the task is always to avoid humans in corridors.
+
+## Solutions
+
+First, we make some assumptions: 1) The system will always face the same situation that similar shelves and walls
+and a single human in the corridor. 2) System is always 2 meters away from the depth camera. 3) The system
+always face in front of the corridor, oriented parallel to the walls.
+
+The problem could be separated into 2 parts: 1) Detect the human. 2) Calculate the clearance then make the decisions.
+
+This time, we use an ensemble method which combined 2 methods:
+1) After denoise, we used a crop image which only contains the human area. then find the human singly.
+Then we calculate distance by depth.
+2) Provided images to stitch a "human free" background. Then we get human depth information in all images.
+Generating the mask of human, then we use sliding window to remove noise
+in order to calculate the accurate depth of human. The we look for the point on the shelf and with approximately
+same depth to get the info of corridor.
+Finally, we get the safer side and clearance by comparing the distance for the left and the right.
+
+After getting the 2 results, we compare. If decisions are same, we apply the mean of 2 distances.
+If decisions are different, we use the one with longer distance.
+
+The method 2 are from paper[1].
+
+## Authors
+
+[Zhuoran Wu](https://github.com/WuZhuoran) [zw118@georgetown.edu](mailto:zw118@georgetown.edu)
+
+## Reference
+
+[1] wyxPatrick. "Human-Corridor." GitHub, WyxPatrick, 11 Dec. 2018, [https://github.com/wyxPatrick/human-corridor](https://github.com/wyxPatrick/human-corridor).
